@@ -54,6 +54,50 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'orenger.urls'
 
+LOGGING = {
+    # 版本
+    'version': 1,
+    # 是否禁用已存在的日志器
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(lineno)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(module)s %(lineno)d %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, "logs/uuu.log"),  # 日志文件的位置
+            'maxBytes': 300 * 1024 * 1024,
+            'backupCount': 10,
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {  # 定义了一个名为django的日志器
+            'handlers': ['console', 'file'],
+            'propagate': True,
+            'level': 'INFO',  # 日志器接收的最低日志级别
+        },
+    }
+}
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -105,20 +149,34 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
+# 修改语言
+LANGUAGE_CODE = 'zh-hans'
+# 修改时区
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
 USE_L10N = True
-
+# utc 时间
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),	# 用于存放静态文件
+]
